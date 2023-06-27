@@ -1,11 +1,16 @@
 package com.kovalmax.powermonitoring.domain.model
 
-import android.net.Uri
-
 data class User(
     val email: String = "",
-    val displayName: String = "",
-    val photoUrl: String = "",
+    val displayName: String? = null,
+    val photoUrl: String? = null,
     val id: String = "",
     val tokenId: String = "",
+)
+
+data class UserSettings(
+    val userId: String = "",
+    val usePush: Boolean = false,
+    val useTelegram: Boolean = false,
+    val chatId: Long = 0
 )

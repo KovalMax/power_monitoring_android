@@ -1,4 +1,4 @@
-package com.kovalmax.powermonitoring.ui.theme
+package com.kovalmax.powermonitoring.presentation.theme
 
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle

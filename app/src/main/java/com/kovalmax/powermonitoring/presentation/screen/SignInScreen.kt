@@ -1,6 +1,6 @@
-package com.kovalmax.powermonitoring.ui.screen
+package com.kovalmax.powermonitoring.presentation.screen
 
-import androidx.activity.compose.rememberLauncherForActivityResult
+import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -20,7 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,58 +30,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import com.google.android.gms.common.api.ApiException
 import com.kovalmax.powermonitoring.R
-import com.kovalmax.powermonitoring.task.AuthResultContract
-import com.kovalmax.powermonitoring.ui.Screen
-import com.kovalmax.powermonitoring.ui.model.SignInViewModel
-import kotlinx.coroutines.launch
+import com.kovalmax.powermonitoring.intent.signin.SignInState
 
 @Composable
-fun SignInScreen(nav: NavController, signInViewModel: SignInViewModel = hiltViewModel()) {
-
-    var text by remember { mutableStateOf<String?>(null) }
-    val user by remember(signInViewModel) { signInViewModel.user }.collectAsState()
-    val signInRequestCode = 1
-
-    val authResultLauncher =
-        rememberLauncherForActivityResult(contract = AuthResultContract()) { task ->
-            try {
-                val account = task?.getResult(ApiException::class.java)
-                if (account == null) {
-                    text = "Google sign in failed, no account"
-                } else {
-                    signInViewModel.launch {
-                        signInViewModel.signIn(
-                            email = account.email!!,
-                            displayName = account.displayName!!,
-                            photoUrl = account.photoUrl!!,
-                            id = account.id!!,
-                            tokenId = account.idToken!!,
-                        )
-                    }
-
-                }
-            } catch (e: ApiException) {
-                text = e.toString()
-            }
+fun SignInScreen(state: SignInState, onSignInClick: () -> Unit) {
+    val context = LocalContext.current
+    LaunchedEffect(key1 = state.signInError) {
+        state.signInError?.let { error ->
+            Toast.makeText(
+                context,
+                error,
+                Toast.LENGTH_LONG
+            ).show()
         }
+    }
 
     AuthView(
-        errorText = text,
-        onClick = {
-            text = null
-            authResultLauncher.launch(signInRequestCode)
-        }
+        errorText = state.signInError,
+        onClick = onSignInClick
     )
-
-    if (user != null) {
-        nav.navigate(Screen.Main.route)
-    }
 }
 
 
@@ -92,28 +63,28 @@ fun AuthView(
 ) {
     var isLoading by remember { mutableStateOf(false) }
 
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            SignInButton(
-                text = "Sign in with Google",
-                loadingText = "Signing in...",
-                isLoading = isLoading,
-                icon = painterResource(id = R.drawable.ic_google_logo),
-                onClick = {
-                    isLoading = true
-                    onClick()
-                }
-            )
-
-            errorText?.let {
-                isLoading = false
-                Spacer(modifier = Modifier.height(30.dp))
-                Text(text = it)
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        SignInButton(
+            text = "Sign in with Google",
+            loadingText = "Signing in...",
+            isLoading = isLoading,
+            icon = painterResource(id = R.drawable.ic_google_logo),
+            onClick = {
+                isLoading = true
+                onClick()
             }
+        )
+
+        errorText?.let {
+            isLoading = false
+            Spacer(modifier = Modifier.height(30.dp))
+            Text(text = it)
         }
+    }
 }
 
 @Composable

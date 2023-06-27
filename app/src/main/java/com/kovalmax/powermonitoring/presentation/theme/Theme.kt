@@ -1,4 +1,4 @@
-package com.kovalmax.powermonitoring.ui.theme
+package com.kovalmax.powermonitoring.presentation.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 
 private val LightColorPalette = lightColors(
     primary = primaryGreen,
+    primaryVariant = green,
     secondary = textColorLight,
     surface = lightGrey,
     onPrimary = accentAmber,
